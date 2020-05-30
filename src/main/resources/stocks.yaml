@@ -1,0 +1,12 @@
+config:
+  options:
+    BSE:
+      M&MBO,
+      ATULBO,
+      TATAMOTORSBO,
+      INFYBO,
+      TITANBO
+    NSE:
+      A,
+      B,
+      c

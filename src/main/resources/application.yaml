@@ -1,0 +1,15 @@
+app:
+  stock-market:
+    markets:
+      BSE,
+      NSE,
+      NYSE,
+      ASX
+server:
+  error:
+    include-stacktrace: never
+    whitelabel:
+      enabled: false
+spring:
+  main:
+    banner-mode: off

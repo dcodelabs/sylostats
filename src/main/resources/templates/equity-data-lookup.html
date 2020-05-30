@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Equity data lookup</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="header">
+    <h1>Sylostat - Stock position snapshot</h1>
+</div>
+<div id="ctnt" class="content">
+    <div id="error-panel" class="error">
+    </div>
+    <form name="equity-data" id="equity-data">
+        <fieldset>
+            <select id="stock-exchange" name="stock-exchange">
+                <option disabled selected>Select an exchange</option>
+                <option th:value="${elements.key}" th:each="elements:${stocks}" th:text="${elements.key}"></option>
+            </select>
+            <select id="stocks-id" name="stocks-id">
+                <option disabled selected>Select a quote</option>
+                <th:block th:each="elements:${stocks.values()}">
+                    <option th:value="${val}" th:each="val:${elements}" th:text="${val}"></option>
+                </th:block>
+            </select>
+            <select id="stock-interval" name="stock-interval">
+                <option disabled selected>Select an interval</option>
+                <option value="stock1">Monthly</option>
+                <option value="stock2">Weekly</option>
+            </select>
+            <label for="frm-datepicker">From date:</label>
+            <input id="frm-datepicker" name="frm-datepicker" type="text"/>
+            <label for="to-datepicker">To date:</label>
+            <input id="to-datepicker" name="to-datepicker" type="text"/>
+            <button type="submit" id="equity-data-submit">Get-Stock</button>
+            <div id="stock-history"></div>
+        </fieldset>
+    </form>
+</div>
+<div id="ftr" class="footer">
+    <p>&copy; 2020 Sylostat.com
+    <p>
+</div>
+<script type="text/javascript" src="/webjars/jquery/3.1.1/jquery.min.js"></script>
+<script type="text/javascript" src="/js/ajaxFunction.js"></script>
+<script type="text/javascript" src="/js/jquery-1.12.1.js"></script>
+<script type="text/javascript" src="/js/jquery-ui.js"></script>
+<link rel="stylesheet" href="/js/jquery-ui.css">
+</body>
+</html>
