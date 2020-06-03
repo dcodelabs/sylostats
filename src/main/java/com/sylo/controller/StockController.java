@@ -55,6 +55,10 @@ public class StockController {
     return histories;
   }
 
+  @GetMapping("/test")
+  public String greeting() {
+    return "Hello World!!";
+  }
   @GetMapping("/api/equity/history")
   public ResponseEntity<List<EquityHistory>> getEquityHistory(
       //      @RequestHeader("AppID") String appId,
@@ -91,26 +95,6 @@ public class StockController {
         history.setLow(price.getLow());
         histories.add(history);
       }
-      final String url =
-          "https://apidojo-yahoo-finance-v1.p.rapidapi.com/stock/v2/get-historical-data";
-      UriComponentsBuilder uriComponentsBuilder =
-          UriComponentsBuilder.fromUri(new URI(url))
-              .queryParam("frequency", "1mo")
-              .queryParam("filter", "history")
-              .queryParam("period1", "1546448400")
-              .queryParam("period2", "1589637600000")
-              .queryParam("symbol", "ATUL.BO");
-
-      MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
-      headers.add("x-rapidapi-host", "apidojo-yahoo-finance-v1.p.rapidapi.com");
-      headers.add("x-rapidapi-key", "22ad13d323msh2ec2c756f6f0a46p18d9cbjsn49bd8f2ac5cd");
-      headers.add("useQueryString", "true");
-      headers.add("Content-Type", "application/json");
-      HttpEntity<?> entity = new HttpEntity<>(headers);
-      ResponseEntity<EquityPrice[]> prices =
-          restTemplate.exchange(
-              uriComponentsBuilder.toUriString(), HttpMethod.GET, entity, EquityPrice[].class);
-      System.out.println(prices.getBody().length);
 
     } catch (Exception ex) {
       throw ex;
@@ -129,5 +113,29 @@ public class StockController {
     price.setVolume(919);
     price.setAdjclose(4571.14990234375);
     return Arrays.asList(price);
+  }
+
+  @GetMapping("/api/test/prices")
+  public ResponseEntity<Example> getHistory() throws URISyntaxException {
+    final String url =
+        "https://apidojo-yahoo-finance-v1.p.rapidapi.com/stock/v2/get-historical-data";
+    UriComponentsBuilder uriComponentsBuilder =
+        UriComponentsBuilder.fromUri(new URI(url))
+            .queryParam("frequency", "1mo")
+            .queryParam("filter", "history")
+            .queryParam("period1", "1546448400")
+            .queryParam("period2", "1589637600000")
+            .queryParam("symbol", "ATUL.BO");
+
+    MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
+    headers.add("x-rapidapi-host", "apidojo-yahoo-finance-v1.p.rapidapi.com");
+    headers.add("x-rapidapi-key", "22ad13d323msh2ec2c756f6f0a46p18d9cbjsn49bd8f2ac5cd");
+    headers.add("useQueryString", "true");
+    headers.add("Content-Type", "application/json");
+    HttpEntity<?> entity = new HttpEntity<>(headers);
+    ResponseEntity<Example> prices =
+        restTemplate.exchange(
+            uriComponentsBuilder.toUriString(), HttpMethod.GET, entity, Example.class);
+    return prices;
   }
 }

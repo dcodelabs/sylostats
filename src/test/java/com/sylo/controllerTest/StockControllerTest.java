@@ -10,6 +10,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import static org.hamcrest.Matchers.containsString;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -39,6 +40,8 @@ public class StockControllerTest {
         vars.add("stockInterval","q");
         vars.add("fromDate","01-05-2020");
         vars.add("toDate","10-05-2020");
+
+//        when(service.greet()).thenReturn("Hello, Mock");
     this.mockMvc
         .perform(get("/api/equity/history").params(vars))
         .andDo(print())

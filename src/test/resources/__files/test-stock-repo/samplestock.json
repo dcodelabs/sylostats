@@ -1,0 +1,13 @@
+[
+  {
+    "exchange": "bse",
+    "stockId": "q",
+    "interval": "q",
+    "year": 2020,
+    "month": 4,
+    "open": 4482.0,
+    "high": 4615.0,
+    "low": 4482.0,
+    "close": 4571.14990234375
+  }
+]

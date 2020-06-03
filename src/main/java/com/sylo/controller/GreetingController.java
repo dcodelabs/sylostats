@@ -35,4 +35,5 @@ public class GreetingController {
     model.addAttribute("stocks", stockMap);
     return "equity-data-lookup";
   }
+
 }

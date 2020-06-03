@@ -33,10 +33,11 @@ dependencies {
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     annotationProcessor 'org.projectlombok:lombok'
     compile 'org.apache.commons:commons-collections4:4.2'
+    testCompile 'com.github.tomakehurst:wiremock-jre8:2.26.3'
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
     }
-    testCompile 'com.github.tomakehurst:wiremock:1.58'
+    implementation 'junit:junit:4.12'
 }
 
 test {
