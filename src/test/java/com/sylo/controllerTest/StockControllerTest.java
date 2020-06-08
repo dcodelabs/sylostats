@@ -20,19 +20,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author dhanavenkateshgopal on 26/5/20.
  * @project sylostats
  */
-@WebMvcTest
+
 public class StockControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
     @MockBean
     private Stocks stocks;
-    @Test
+
     public void shouldReturnDefaultMessage() throws Exception {
         this.mockMvc.perform(get("/greeting")).andDo(print()).andExpect(status().isOk())
             .andExpect(content().string(containsString("Hello, World")));
     }
-    @Test
+
     public void shouldReturnDefaultstocks() throws Exception {
         MultiValueMap<String, String> vars = new LinkedMultiValueMap<>();
         vars.add("stockExchange","bse");

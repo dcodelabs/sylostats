@@ -5,6 +5,10 @@ app:
       NSE,
       NYSE,
       ASX
+  integration:
+    external:
+      api:
+        yahoo: 'https://apidojo-yahoo-finance-v1.p.rapidapi.com/stock/v2/get-historical-data'
 server:
   error:
     include-stacktrace: never

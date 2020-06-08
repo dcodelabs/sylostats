@@ -14,10 +14,10 @@ import java.util.Map;
  * @project sylostats
  */
 @Controller
-public class GreetingController {
+public class TemplateController {
   private final Stocks stocks;
 
-  public GreetingController(Stocks stocks) {
+  public TemplateController(Stocks stocks) {
     this.stocks = stocks;
   }
 
@@ -35,5 +35,10 @@ public class GreetingController {
     model.addAttribute("stocks", stockMap);
     return "equity-data-lookup";
   }
-
+  @GetMapping("/template/stock/positions")
+  public String getStockPositions(Model model) {
+    Map<String, List<String>> stockMap = stocks.getOptions();
+    model.addAttribute("stocks", stockMap);
+    return "syloTemplate";
+  }
 }

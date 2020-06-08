@@ -25,6 +25,7 @@ repositories {
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
     compileOnly "org.springframework.boot:spring-boot-configuration-processor"
     compileOnly 'org.projectlombok:lombok'
     compile 'org.webjars:bootstrap:3.3.7-1'
@@ -33,7 +34,8 @@ dependencies {
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     annotationProcessor 'org.projectlombok:lombok'
     compile 'org.apache.commons:commons-collections4:4.2'
-    testCompile 'com.github.tomakehurst:wiremock-jre8:2.26.3'
+    testCompile 'io.rest-assured:rest-assured:3.0.2'
+    testCompile 'com.github.tomakehurst:wiremock-jre8-standalone:2.26.3'
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
     }

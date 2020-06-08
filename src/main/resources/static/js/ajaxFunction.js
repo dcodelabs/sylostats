@@ -97,7 +97,7 @@ function createDataTable(data) {
         table.append(
             $('<tr>').addClass('bar'),
             $('<td>').text(item.exchange),
-            $('<td>').text(item.stockId),
+            $('<td>').text(item.stockSymbol),
             $('<td>').text(item.year),
             $('<td>').text(item.month),
             $('<td>').text(item.open),

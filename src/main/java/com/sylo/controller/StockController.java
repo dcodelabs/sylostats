@@ -1,32 +1,23 @@
 package com.sylo.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sylo.model.EquityHistory;
-import com.sylo.model.EquityPrice;
-import com.sylo.model.Example;
+import com.sylo.model.StockHistoryRequest;
+import com.sylo.model.UiStockHistoryResponse;
+import com.sylo.model.YahooStockHistoryResponse;
+import com.sylo.service.StockApiClient;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * @author dhanavenkateshgopal on 15/5/20.
@@ -35,107 +26,79 @@ import java.util.List;
 @RestController
 @Slf4j
 public class StockController {
-  private final RestTemplate restTemplate;
-  private final ObjectMapper mapper ;
 
-  public StockController(RestTemplate restTemplate, ObjectMapper mapper) {
-    this.restTemplate = restTemplate;
-    this.mapper = mapper;
-  }
-  @GetMapping("/api/prices")
-  public Example getprices() {
+  private StockApiClient stockApiClient;
 
-    Example histories =null;
-    try {
-       histories = mapper.readValue(new ClassPathResource("stock-history.json").getInputStream(), Example.class);
-
-    } catch (IOException e) {
-      System.out.println("Unable to save users: " + e.getMessage());
-    }
-    return histories;
+  @Autowired
+  public StockController(StockApiClient stockApiClient) {
+    this.stockApiClient = stockApiClient;
   }
 
-  @GetMapping("/test")
-  public String greeting() {
-    return "Hello World!!";
-  }
   @GetMapping("/api/equity/history")
-  public ResponseEntity<List<EquityHistory>> getEquityHistory(
-      //      @RequestHeader("AppID") String appId,
+  public List<UiStockHistoryResponse> getEquityHistory(
       @RequestParam(value = "stockExchange", required = true) String stockExchange,
       @RequestParam(value = "stockId", required = true) String stockId,
       @RequestParam(value = "stockInterval", required = true) String stockInterval,
       @RequestParam(value = "fromDate", required = true) String fromDate,
       @RequestParam(value = "toDate", required = true) String toDate)
-      throws ParseException, URISyntaxException {
-    List<EquityHistory> histories = new ArrayList<>();
-    try {
-      log.info("StockExchange: {}", stockExchange);
-      log.info("stockId: {}", stockId);
-      log.info("stockInterval: {}", stockInterval);
-      log.info("fromDate: {}", fromDate);
-      log.info("toDate: {}", toDate);
+      throws Exception {
+    log.debug("StockExchange: {}", stockExchange);
+    log.debug("stockId: {}", stockId);
+    log.debug("stockInterval: {}", stockInterval);
+    log.debug("fromDate: {}", fromDate);
+    log.debug("toDate: {}", toDate);
 
-      SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
-      log.info("Date format: {}", format.parse(fromDate));
-      log.info("Epoch date: {}", format.parse(fromDate).toInstant().toEpochMilli());
-      Calendar calendar = Calendar.getInstance();
-      calendar.setTime(format.parse(fromDate));
-
-      for (EquityPrice price : getEquityPrices()) {
-        EquityHistory history = new EquityHistory();
-        history.setExchange(stockExchange);
-        history.setStockId(stockId);
-        history.setInterval(stockInterval);
-        history.setMonth(calendar.get(Calendar.MONTH));
-        history.setYear(calendar.get(Calendar.YEAR));
-        history.setOpen(price.getOpen());
-        history.setClose(price.getClose());
-        history.setHigh(price.getHigh());
-        history.setLow(price.getLow());
-        histories.add(history);
-      }
-
-    } catch (Exception ex) {
-      throw ex;
+    SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
+    log.debug("Date format: {}", format.parse(fromDate));
+    log.debug("From Epoch date: {}", format.parse(fromDate).toInstant().getEpochSecond());
+    log.debug("To Epoch date: {}", format.parse(toDate).toInstant().getEpochSecond());
+    StockHistoryRequest request =
+        new StockHistoryRequest(
+            stockId, stockInterval, "history", getEpochTime(fromDate), getEpochTime(toDate));
+    YahooStockHistoryResponse response = stockApiClient.getHistory(request);
+    if (response != null) {
+      return response.getPrices().stream()
+          .map(
+              it ->
+                  new UiStockHistoryResponse(
+                      "BSE",
+                      stockId,
+                      toString(epochToDate(it.getDate()).getYear()),
+                      epochToDate(it.getDate()).getMonth().name(),
+                      toString(it.getOpen()),
+                      toString(it.getHigh()),
+                      toString(it.getHigh()),
+                      toString(it.getClose())))
+          .collect(Collectors.toList());
+    } else {
+      throw new Exception("Invalid input arguments. No response from server");
     }
-    return ResponseEntity.status(HttpStatus.ACCEPTED).body(histories);
   }
 
-  private List<EquityPrice> getEquityPrices() {
-
-    EquityPrice price = new EquityPrice();
-    price.setOpen(4482);
-    price.setClose(4571.14990234375);
-    price.setDate(1589536785);
-    price.setHigh(4615);
-    price.setLow(4482);
-    price.setVolume(919);
-    price.setAdjclose(4571.14990234375);
-    return Arrays.asList(price);
+  private Optional<String> getEpochTime(String date) {
+    SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
+    Optional<String> dateOptional = Optional.ofNullable(date);
+    return dateOptional.map(
+        given_date -> {
+          try {
+            log.info("Epoch time: {}", format.parse(date).toInstant().getEpochSecond());
+            long value = format.parse(date).toInstant().getEpochSecond();
+            return Long.toString(value);
+          } catch (ParseException e) {
+            log.error("Date parse error: {} ", date, e);
+          }
+          return null;
+        });
   }
 
-  @GetMapping("/api/test/prices")
-  public ResponseEntity<Example> getHistory() throws URISyntaxException {
-    final String url =
-        "https://apidojo-yahoo-finance-v1.p.rapidapi.com/stock/v2/get-historical-data";
-    UriComponentsBuilder uriComponentsBuilder =
-        UriComponentsBuilder.fromUri(new URI(url))
-            .queryParam("frequency", "1mo")
-            .queryParam("filter", "history")
-            .queryParam("period1", "1546448400")
-            .queryParam("period2", "1589637600000")
-            .queryParam("symbol", "ATUL.BO");
+  private LocalDate epochToDate(Integer epochTime) {
 
-    MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
-    headers.add("x-rapidapi-host", "apidojo-yahoo-finance-v1.p.rapidapi.com");
-    headers.add("x-rapidapi-key", "22ad13d323msh2ec2c756f6f0a46p18d9cbjsn49bd8f2ac5cd");
-    headers.add("useQueryString", "true");
-    headers.add("Content-Type", "application/json");
-    HttpEntity<?> entity = new HttpEntity<>(headers);
-    ResponseEntity<Example> prices =
-        restTemplate.exchange(
-            uriComponentsBuilder.toUriString(), HttpMethod.GET, entity, Example.class);
-    return prices;
+    return Instant.ofEpochSecond(Long.valueOf(epochTime))
+        .atZone(ZoneId.systemDefault())
+        .toLocalDate();
+  }
+
+  private String toString(Number number) {
+    return String.valueOf(number);
   }
 }

@@ -2,7 +2,7 @@ config:
   options:
     BSE:
       M&MBO,
-      ATULBO,
+      ATUL.BO,
       TATAMOTORSBO,
       INFYBO,
       TITANBO
